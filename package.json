@@ -1,0 +1,33 @@
+{
+  "name": "gamebet-2.0",
+  "version": "1.0.0",
+  "description": "GameBet - Premium Gaming & Betting Platform",
+  "main": "index.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "package": "node scripts/package.js",
+    "deploy": "node scripts/deploy.js",
+    "release": "node scripts/release.js",
+    "verify": "node scripts/verify.js",
+    "prebuild": "node scripts/verify.js",
+    "postbuild": "echo 'Build completed successfully'",
+    "clean": "node scripts/clean.js"
+  },
+  "keywords": [
+    "gamebet",
+    "gaming",
+    "betting",
+    "pwa",
+    "android"
+  ],
+  "author": "GameBet Admin",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1716/GameBet2.0-.git"
+  },
+  "devDependencies": {
+    "chalk": "^4.1.2",
+    "fs-extra": "^10.1.0"
+  }
+}
