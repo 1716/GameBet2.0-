@@ -1,0 +1,235 @@
+# GameBet 2.0 Build System Usage Examples
+
+This document provides practical examples of using the GameBet 2.0 build, deploy, and package automation system.
+
+## 🚀 Quick Start Examples
+
+### Development Workflow
+```bash
+# Clone and setup
+git clone https://github.com/1716/GameBet2.0-.git
+cd GameBet2.0-
+make install
+
+# Full development workflow
+make dev
+```
+
+### Production Release
+```bash
+# Create a production release
+make prod
+
+# Or step by step
+make clean verify build package deploy-web deploy-android release
+```
+
+## 📋 Common Use Cases
+
+### 1. Build for Testing
+```bash
+# Quick build for testing
+npm run build
+
+# Or with make
+make build
+
+# Verify build integrity
+make test
+```
+
+### 2. Package for Distribution
+```bash
+# Create distribution packages
+npm run package
+
+# Check what was created
+ls package/
+# Output: android/ web/ complete/ package-info.json
+```
+
+### 3. Deploy to Different Environments
+
+#### Staging Deployment
+```bash
+npm run deploy
+# or
+make deploy
+
+# Files will be in deploy/staging/
+```
+
+#### Web Server Deployment
+```bash
+DEPLOY_TARGET=web npm run deploy
+# or
+make deploy-web
+
+# Files will be in deploy/web/
+# Includes .htaccess for Apache configuration
+```
+
+#### Android Store Deployment
+```bash
+DEPLOY_TARGET=android-store npm run deploy
+# or
+make deploy-android
+
+# Files will be in deploy/android-store/
+# Includes store-listing.json with metadata
+```
+
+### 4. Version Management
+
+#### Automated Versioning
+```bash
+# Patch release (1.0.0 -> 1.0.1)
+make release-patch
+
+# Minor release (1.0.0 -> 1.1.0)
+make release-minor
+
+# Major release (1.0.0 -> 2.0.0)
+make release-major
+```
+
+#### Manual Versioning
+```bash
+# Create specific version
+npm run release 2.1.0 minor
+
+# Files will be in releases/v2.1.0/
+```
+
+## 🔧 Advanced Examples
+
+### Custom Build Process
+```bash
+# Skip verification (faster for development)
+make quick-build
+
+# Custom deployment target
+DEPLOY_TARGET=custom-target npm run deploy
+```
+
+### CI/CD Integration
+```bash
+# Environment variables for CI
+export DEPLOY_TARGET=production
+export NODE_ENV=production
+
+# Run full pipeline
+npm run verify && npm run build && npm run package && npm run deploy
+```
+
+### File Structure After Build
+```
+GameBet2.0-/
+├── build/                    # Build artifacts
+│   ├── GameBet.aab
+│   ├── GameBet.apk
+│   ├── assetlinks.json
+│   ├── manifest.json
+│   └── checksums.json
+├── package/                  # Distribution packages
+│   ├── android/              # Android-specific files
+│   ├── web/                  # Web deployment files
+│   ├── complete/             # All build files
+│   └── package-info.json
+├── deploy/                   # Deployment-ready files
+│   ├── staging/
+│   ├── web/
+│   └── android-store/
+└── releases/                 # Version releases
+    ├── v1.0.0/
+    └── v1.0.0.tar.gz
+```
+
+## 📱 Platform-Specific Deployment
+
+### Google Play Store
+1. Run Android deployment:
+   ```bash
+   make deploy-android
+   ```
+
+2. Upload files:
+   - Upload `deploy/android-store/GameBet.aab` to Google Play Console
+   - Upload `deploy/android-store/assetlinks.json` to your web server at `/.well-known/assetlinks.json`
+
+3. Use metadata from `store-listing.json` for store listing
+
+### Web Server (Apache)
+1. Run web deployment:
+   ```bash
+   make deploy-web
+   ```
+
+2. Upload all files from `deploy/web/` to your web server
+3. Ensure `.htaccess` file is processed by Apache
+4. Verify `assetlinks.json` is accessible at `https://yourdomain.com/.well-known/assetlinks.json`
+
+### Direct APK Distribution
+1. Use `package/android/GameBet.apk` for direct distribution
+2. Users need to enable "Install from Unknown Sources"
+3. Provide checksums from `checksums.json` for verification
+
+## 🔐 Security Best Practices
+
+### For Production
+1. Regenerate signing keys:
+   ```bash
+   # Create new keystore (replace existing)
+   keytool -genkey -v -keystore signing.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. Update `signing-key-info.txt` with new credentials
+
+3. Never commit production keys to public repositories
+
+### For Development
+- Current keystore is safe for development/testing
+- Use environment variables for sensitive deployment configs
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+```bash
+# Missing Java keytool
+sudo apt-get install openjdk-11-jdk
+
+# Missing Node.js dependencies
+npm install
+
+# Permission issues
+chmod +x scripts/*.js
+
+# Clean everything and restart
+make clean-all
+make install
+make dev
+```
+
+### Verification
+```bash
+# Check environment
+make status
+
+# Verify all files
+npm run verify
+
+# Test build integrity
+make test
+```
+
+## 📞 Support
+
+- Build issues: Check `make status` and `npm run verify`
+- Deployment issues: Review `DEPLOYMENT.md` files in deploy directories
+- Release issues: Check `RELEASE_NOTES.json` in releases directory
+- CI/CD issues: Review GitHub Actions logs
+
+---
+
+Generated by GameBet 2.0 Build System
+Last updated: $(date)
