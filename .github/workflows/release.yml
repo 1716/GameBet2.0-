@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Set release version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          echo "RELEASE_TYPE=${{ github.event.inputs.release_type }}" >> $GITHUB_OUTPUT
+        else
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          echo "RELEASE_TYPE=tag" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Create release
+      run: npm run release ${{ steps.version.outputs.VERSION }} ${{ steps.version.outputs.RELEASE_TYPE }}
+      
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: gamebet-release-v${{ steps.version.outputs.VERSION }}
+        path: |
+          releases/v${{ steps.version.outputs.VERSION }}/
+        retention-days: 365
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        release_name: GameBet 2.0 v${{ steps.version.outputs.VERSION }}
+        body_path: releases/v${{ steps.version.outputs.VERSION }}/README.md
+        draft: false
+        prerelease: false
+        
+    - name: Upload Android App Bundle
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: releases/v${{ steps.version.outputs.VERSION }}/packages/android/GameBet.aab
+        asset_name: GameBet-v${{ steps.version.outputs.VERSION }}.aab
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Android APK
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: releases/v${{ steps.version.outputs.VERSION }}/packages/android/GameBet.apk
+        asset_name: GameBet-v${{ steps.version.outputs.VERSION }}.apk
+        asset_content_type: application/vnd.android.package-archive
