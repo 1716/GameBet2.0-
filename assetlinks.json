@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.replit.game_bet_fix_sbuff6912.twa",
+        "sha256_cert_fingerprints": ["67:3C:85:A1:47:85:FB:7C:54:66:96:94:2E:83:EA:81:E9:C8:5E:37:8F:23:07:B2:AC:D1:24:65:E0:88:50:95"]
+      }
+    }]
