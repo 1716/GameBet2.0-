@@ -1,0 +1,26 @@
+[
+  {
+    "apiKey": "demo-paypal-key-123456789abcdef",
+    "service": "paypal",
+    "maxUsage": 1000,
+    "usageCount": 0,
+    "expiresAt": "2025-12-31T23:59:59.000Z",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "apiKey": "demo-stripe-key-987654321fedcba",
+    "service": "stripe",
+    "maxUsage": 5000,
+    "usageCount": 0,
+    "expiresAt": "2025-12-31T23:59:59.000Z",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "apiKey": "demo-ai-service-key-abcdef123456789",
+    "service": "ai",
+    "maxUsage": 10000,
+    "usageCount": 2,
+    "expiresAt": "2025-12-31T23:59:59.000Z",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]

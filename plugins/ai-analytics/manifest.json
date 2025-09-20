@@ -1,0 +1,8 @@
+{
+  "name": "ai-analytics",
+  "version": "1.0.0", 
+  "description": "AI-powered analytics and game logic plugin",
+  "main": "index.js",
+  "author": "GameBet2.0",
+  "dependencies": {}
+}

@@ -1,0 +1,11 @@
+{
+  "name": "payment-integration",
+  "version": "1.0.0",
+  "description": "Payment integration plugin for PayPal, CashApp, and banking APIs",
+  "main": "index.js",
+  "author": "GameBet2.0",
+  "dependencies": {
+    "paypal-rest-sdk": "^1.13.3",
+    "stripe": "^14.12.0"
+  }
+}
