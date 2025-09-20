@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Withdraw Funds</h1>
+    </header>
+    <main>
+        <div id="withdrawal-container">
+            <form id="withdrawal-form">
+                <label for="withdrawal-method">Select Withdrawal Method:</label>
+                <select id="withdrawal-method" name="withdrawal-method">
+                    <option value="cash-app">Cash App</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="debit-bank">Debit/Bank Account</option>
+                </select>
+                <div id="withdrawal-details"></div>
+                <button type="submit">Withdraw</button>
+            </form>
+        </div>
+    </main>
+    <script src="withdrawal.js"></script>
+</body>
+</html>

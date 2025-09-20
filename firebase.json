@@ -1,0 +1,12 @@
+
+{
+  "hosting": {
+    "public": "src",
+    "rewrites": [
+      {
+        "source": "/withdraw",
+        "function": "withdraw"
+      }
+    ]
+  }
+}
