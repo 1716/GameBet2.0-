@@ -11,7 +11,8 @@
     "verify": "node scripts/verify.js",
     "prebuild": "node scripts/verify.js",
     "postbuild": "echo 'Build completed successfully'",
-    "clean": "node scripts/clean.js"
+    "clean": "node scripts/clean.js",
+    "start": "node server.js"
   },
   "keywords": [
     "gamebet",
@@ -28,6 +29,15 @@
   },
   "devDependencies": {
     "chalk": "^4.1.2",
-    "fs-extra": "^10.1.0"
+    "fs-extra": "^10.1.0",
+    "jest": "^30.1.3",
+    "serve": "^14.2.5"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "lowdb": "^1.0.0"
   }
 }
