@@ -19,7 +19,7 @@
     "apiKey": "demo-ai-service-key-abcdef123456789",
     "service": "ai",
     "maxUsage": 10000,
-    "usageCount": 2,
+    "usageCount": 3,
     "expiresAt": "2025-12-31T23:59:59.000Z",
     "createdAt": "2024-01-01T00:00:00.000Z"
   }
