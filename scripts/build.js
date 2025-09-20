@@ -31,7 +31,9 @@ if (fs.existsSync(srcDir)) {
 // Copy other essential files to build
 const filesToCopy = [
   'assetlinks.json',
-  'README.md'
+  'README.md',
+  'GameBet.aab',
+  'GameBet.apk'
 ];
 
 console.log('📋 Copying additional files to build directory...');

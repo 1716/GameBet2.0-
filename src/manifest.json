@@ -1,0 +1,20 @@
+{
+  "short_name": "GameBet",
+  "name": "GameBet - Premium Gaming & Betting Platform",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://via.placeholder.com/512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

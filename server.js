@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('./database');
+const { readDb, writeDb } = require('./database');
 
 const app = express();
 const port = 3000;
@@ -11,6 +11,7 @@ const JWT_SECRET = 'your_jwt_secret'; // In a real app, use a more secure secret
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('src'));
 
 const games = [
     {
@@ -50,6 +51,28 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+app.get('/api/balance', (req, res) => {
+    const db = readDb();
+    res.json({ balance: db.balance });
+});
+
+app.post('/api/withdraw', (req, res) => {
+    const { amount, method } = req.body;
+    const db = readDb();
+
+    if (amount > db.balance) {
+        return res.status(400).json({ message: 'Insufficient balance' });
+    }
+
+    db.balance -= amount;
+    writeDb(db);
+
+    // In a real application, you would integrate with a payment provider here.
+    console.log(`Withdrawal of ${amount} to ${method} processed successfully.`);
+
+    res.json({ message: 'Withdrawal successful!' });
+});
+
 app.get('/api/games', (req, res) => {
     res.json(games);
 });
@@ -57,15 +80,20 @@ app.get('/api/games', (req, res) => {
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 8);
-
-    db.get('users').push({ id: Date.now(), username, password: hashedPassword }).write();
+    const db = readDb();
+    if (!db.users) {
+        db.users = [];
+    }
+    db.users.push({ id: Date.now(), username, password: hashedPassword });
+    writeDb(db);
 
     res.status(201).json({ message: 'User registered successfully!' });
 });
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    const user = db.get('users').find({ username }).value();
+    const db = readDb();
+    const user = db.users && db.users.find(u => u.username === username);
 
     if (!user) {
         return res.status(404).json({ message: 'User not found!' });
@@ -85,8 +113,12 @@ app.post('/api/login', (req, res) => {
 
 app.post('/api/bets', authenticateToken, (req, res) => {
     const { gameId, amount } = req.body;
-    
-    db.get('bets').push({ userId: req.user.id, gameId, amount, date: new Date() }).write();
+    const db = readDb();
+    if (!db.bets) {
+        db.bets = [];
+    }
+    db.bets.push({ userId: req.user.id, gameId, amount, date: new Date() });
+    writeDb(db);
 
     res.json({ message: 'Bet placed successfully!' });
 });

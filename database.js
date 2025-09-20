@@ -1,10 +1,19 @@
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
 
-const adapter = new FileSync('db.json');
-const db = low(adapter);
+const fs = require('fs');
+const path = require('path');
 
-// Set some defaults
-db.defaults({ users: [], bets: [] }).write();
+const dbPath = path.join(__dirname, 'db.json');
 
-module.exports = db;
+function readDb() {
+    if (!fs.existsSync(dbPath)) {
+        return { balance: 1000 }; // Default balance
+    }
+    const data = fs.readFileSync(dbPath, 'utf8');
+    return JSON.parse(data);
+}
+
+function writeDb(data) {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+}
+
+module.exports = { readDb, writeDb };
