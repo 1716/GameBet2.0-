@@ -1,4 +1,10 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": 1759049149699,
+      "username": "testuser",
+      "password": "$2b$08$o5Cr7QAvVaCh1azAKtKuPuImTNJDALgyuvhBHd89Jn4UW2u3guoi."
+    }
+  ],
   "bets": []
 }
