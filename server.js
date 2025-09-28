@@ -77,6 +77,41 @@ app.get('/api/games', (req, res) => {
     res.json(games);
 });
 
+// Enhanced games endpoint with external integration support
+app.get('/api/games/integrated', async (req, res) => {
+    try {
+        let allGames = [...games]; // Start with local games
+        
+        // Try to fetch from external source
+        try {
+            const fetch = require('node-fetch'); // Note: In a real app, you'd have this installed
+            const externalResponse = await fetch('https://game-bet-fix-sbuff6912.replit.app/games');
+            if (externalResponse.ok) {
+                const externalGames = await externalResponse.json();
+                if (Array.isArray(externalGames)) {
+                    // Merge external games, giving them unique IDs to avoid conflicts
+                    const maxLocalId = Math.max(...games.map(g => g.id));
+                    const processedExternalGames = externalGames.map((game, index) => ({
+                        ...game,
+                        id: maxLocalId + index + 1,
+                        source: 'external'
+                    }));
+                    allGames = allGames.concat(processedExternalGames);
+                    console.log(`Integrated ${processedExternalGames.length} external games`);
+                }
+            }
+        } catch (error) {
+            console.log('External games API not available:', error.message);
+            // Still return local games if external fails
+        }
+        
+        res.json(allGames);
+    } catch (error) {
+        console.error('Error in integrated games endpoint:', error);
+        res.status(500).json({ message: 'Error fetching games' });
+    }
+});
+
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 8);

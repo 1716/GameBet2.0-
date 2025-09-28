@@ -6,5 +6,12 @@
       "password": "$2b$08$o5Cr7QAvVaCh1azAKtKuPuImTNJDALgyuvhBHd89Jn4UW2u3guoi."
     }
   ],
-  "bets": []
+  "bets": [
+    {
+      "userId": 1759049149699,
+      "gameId": 1,
+      "amount": 10,
+      "date": "2025-09-28T08:54:05.332Z"
+    }
+  ]
 }
