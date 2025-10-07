@@ -1,0 +1,15 @@
+{
+  "name": "GameBet",
+  "short_name": "GameBet",
+  "start_url": "/GameBet2.0-/docs/",
+  "display": "standalone",
+  "background_color": "#071026",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/GameBet2.0-/docs/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
