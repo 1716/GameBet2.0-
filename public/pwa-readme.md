@@ -245,3 +245,4 @@ Use these tools to audit your PWA:
 ---
 
 **Note**: This PWA implementation uses a cache-first strategy which is ideal for static content. Adjust the caching strategy based on your application's needs (network-first for dynamic content, cache-first for static assets).
+
