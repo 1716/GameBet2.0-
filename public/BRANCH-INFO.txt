@@ -1,0 +1,9 @@
+PWA Implementation Branch
+=========================
+
+This branch contains the complete Progressive Web App implementation for GameBet.
+
+Branch name: pwa/add-manifest
+Status: Ready for review and merge
+
+All PWA features are implemented and tested.
