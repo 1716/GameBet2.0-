@@ -1,0 +1,36 @@
+<!--
+  GameBet Icon - 192x192
+  
+  This is a placeholder SVG icon for the PWA.
+  
+  MAINTAINER NOTE: For production use, replace this with a proper PNG icon.
+  Recommended: Use a tool like Inkscape, Figma, or Adobe Illustrator to create
+  a professional icon, then export as:
+  - icon-192.png (192x192 pixels)
+  - icon-512.png (512x512 pixels)
+  
+  Update manifest.json to reference the PNG files instead of SVG.
+  
+  LICENSE: This placeholder icon is provided as-is for development purposes.
+  Replace with your own branded icon before production deployment.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="grad192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="192" height="192" rx="32" fill="#071026"/>
+  
+  <!-- Game chip/token icon -->
+  <circle cx="96" cy="76" r="44" fill="url(#grad192)" stroke="#fff" stroke-width="4"/>
+  
+  <!-- GB text -->
+  <text x="96" y="90" font-size="32" font-weight="bold" text-anchor="middle" fill="#071026" font-family="Arial, sans-serif">GB</text>
+  
+  <!-- Bottom accent -->
+  <rect x="40" y="140" width="112" height="8" rx="4" fill="url(#grad192)"/>
+</svg>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#06b6d4">
+    
+    <!-- Mobile Web App Capable -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GameBet">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+    
+    <!-- Standard Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg">
+    
+    <title>GameBet - Premium Gaming & Betting Platform</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #071026 0%, #0a1628 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: rgba(6, 182, 212, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid rgba(6, 182, 212, 0.3);
+        }
+        
+        header h1 {
+            color: #06b6d4;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        header h1::before {
+            content: '🎮';
+            font-size: 2rem;
+        }
+        
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .welcome {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .welcome h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .welcome p {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+        
+        .feature-card h3 {
+            color: #06b6d4;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card p {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        .install-prompt {
+            background: rgba(6, 182, 212, 0.1);
+            border: 2px solid #06b6d4;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .install-prompt.show {
+            display: block;
+        }
+        
+        .install-prompt h3 {
+            color: #06b6d4;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .install-prompt button {
+            background: #06b6d4;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            color: #071026;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 1rem;
+        }
+        
+        .install-prompt button:hover {
+            transform: scale(1.05);
+        }
+        
+        .pwa-status {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-indicator.active {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+        
+        .status-indicator.inactive {
+            background: #ef4444;
+        }
+        
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            text-align: center;
+            color: #94a3b8;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        footer a {
+            color: #06b6d4;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .welcome h2 {
+                font-size: 2rem;
+            }
+            
+            main {
+                padding: 1rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>GameBet</h1>
+    </header>
+    
+    <main>
+        <div class="welcome">
+            <h2>Welcome to GameBet</h2>
+            <p>Your Premium Gaming & Betting Platform</p>
+        </div>
+        
+        <div class="install-prompt" id="installPrompt">
+            <h3>📱 Install GameBet</h3>
+            <p>Get the full app experience! Install GameBet on your device.</p>
+            <button id="installButton">Install Now</button>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <h3>🎮 Live Gaming</h3>
+                <p>Access premium gaming experiences with real-time updates and seamless gameplay.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>💰 Secure Betting</h3>
+                <p>Place your bets with confidence using our secure and encrypted platform.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📱 Mobile First</h3>
+                <p>Optimized for mobile devices with offline support and fast loading times.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🏆 Real-time Updates</h3>
+                <p>Stay updated with live scores, odds changes, and instant notifications.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🔒 Safe & Secure</h3>
+                <p>Your data and transactions are protected with industry-leading security.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>⚡ Lightning Fast</h3>
+                <p>Experience instant loading and smooth performance on any device.</p>
+            </div>
+        </div>
+        
+        <div class="pwa-status">
+            <strong>PWA Status:</strong><br>
+            <span class="status-indicator" id="swIndicator"></span>
+            <span id="swStatus">Checking service worker...</span>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 GameBet - Premium Gaming & Betting Platform</p>
+        <p>Mature 17+ | Play Responsibly | <a href="/pwa-readme.md">PWA Documentation</a></p>
+    </footer>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registered successfully:', registration.scope);
+                        updateSWStatus(true, 'Service Worker active');
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 New version available! Refresh to update.');
+                                    updateSWStatus(true, 'Update available - Refresh to update');
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('❌ Service Worker registration failed:', error);
+                        updateSWStatus(false, 'Service Worker registration failed');
+                    });
+            });
+        } else {
+            console.warn('⚠️ Service Workers are not supported in this browser');
+            updateSWStatus(false, 'Service Workers not supported');
+        }
+        
+        function updateSWStatus(active, message) {
+            const indicator = document.getElementById('swIndicator');
+            const status = document.getElementById('swStatus');
+            
+            if (active) {
+                indicator.classList.add('active');
+                indicator.classList.remove('inactive');
+            } else {
+                indicator.classList.add('inactive');
+                indicator.classList.remove('active');
+            }
+            
+            status.textContent = message;
+        }
+        
+        // Install Prompt Handler
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installButton = document.getElementById('installButton');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show install prompt
+            installPrompt.classList.add('show');
+            
+            console.log('💡 Install prompt available');
+        });
+        
+        installButton.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                console.log('⚠️ No install prompt available');
+                return;
+            }
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('✅ User accepted the install prompt');
+            } else {
+                console.log('❌ User dismissed the install prompt');
+            }
+            
+            // Clear the deferredPrompt
+            deferredPrompt = null;
+            installPrompt.classList.remove('show');
+        });
+        
+        // Detect if app is installed
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ GameBet has been installed!');
+            installPrompt.classList.remove('show');
+            deferredPrompt = null;
+        });
+        
+        // Check if running as standalone PWA
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            console.log('🎮 Running as installed PWA');
+            // Hide install prompt if already installed
+            installPrompt.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
