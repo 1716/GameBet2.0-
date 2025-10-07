@@ -1,0 +1,12 @@
+{ pkgs ? import <nixpkgs> {} }:
+
+pkgs.mkShell {
+  buildInputs = [
+    pkgs.nodejs
+    pkgs.yarn # remove this line if you use npm only
+  ];
+
+  shellHook = ''
+    echo "Welcome to the GameBet2.0- Node.js development shell!"
+  '';
+}
