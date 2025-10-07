@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="/GameBet2.0-/docs/manifest.webmanifest" />
+  <link rel="icon" href="/GameBet2.0-/docs/icon.svg" />
+  <title>GameBet (PWA)</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#071026;color:#fff}
+    main{max-width:720px;padding:24px;text-align:center}
+    button{background:#06b6d4;border:none;padding:12px 16px;border-radius:8px;color:#04202a;font-weight:600}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>GameBet — PWA Preview</h1>
+    <p>This PR adds a minimal PWA scaffold so you can publish the app with GitHub Pages under the <code>/docs</code> folder.</p>
+    <p>
+      <button id="installBtn">Check install prompt</button>
+    </p>
+    <p id="status">Service worker: <span id="sw">not registered</span></p>
+  </main>
+  <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/GameBet2.0-/docs/service-worker.js')
+        .then(()=>document.getElementById('sw').textContent = 'registered')
+        .catch(()=>document.getElementById('sw').textContent = 'failed');
+    }
+
+    // Simple install prompt handler
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-block';
+    });
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return alert('No install prompt available');
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+      alert('User choice: ' + outcome);
+    });
+  </script>
+</body>
+</html>
