@@ -1,0 +1,205 @@
+
+name: Automated Build, Package, Deploy & Release
+
+on:
+  
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      deploy_target:
+        description: 'Deployment target'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - web
+        - android
+        - all
+
+jobs:
+  build-package-deploy-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Verify environment
+      run: npm run verify
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Package project
+      run: npm run package
+      
+    - name: Set version info
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          echo "RELEASE_TYPE=${{ github.event.inputs.release_type }}" >> $GITHUB_OUTPUT
+          echo "DEPLOY_TARGET=${{ github.event.inputs.deploy_target }}" >> $GITHUB_OUTPUT
+        elif [[ ${{ github.ref }} == refs/tags/* ]]; then
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          echo "RELEASE_TYPE=tag" >> $GITHUB_OUTPUT
+          echo "DEPLOY_TARGET=all" >> $GITHUB_OUTPUT
+        else
+          echo "VERSION=dev-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+          echo "RELEASE_TYPE=development" >> $GITHUB_OUTPUT
+          echo "DEPLOY_TARGET=web" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Deploy to Firebase (Web)
+      if: steps.version.outputs.DEPLOY_TARGET == 'web' || steps.version.outputs.DEPLOY_TARGET == 'all'
+      uses: w9jds/firebase-action@master
+      with:
+        args: deploy --only hosting,functions
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        
+    - name: Deploy Android
+      if: steps.version.outputs.DEPLOY_TARGET == 'android' || steps.version.outputs.DEPLOY_TARGET == 'all'
+      run: |
+        echo "🚀 Deploying Android packages..."
+        if [ -f "package/android/GameBet.apk" ]; then
+          echo "✅ Android APK ready for deployment"
+        else
+          echo "⚠️  Android APK not found in package directory"
+        fi
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: gamebet-build-${{ github.sha }}
+        path: |
+          build/
+          package/
+        retention-days: 30
+        
+    - name: Upload Android packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: gamebet-android-${{ github.sha }}
+        path: |
+          package/android/
+          GameBet.apk
+          GameBet.aab
+        retention-days: 90
+        
+    - name: Create release
+      if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+      run: |
+        echo "🏷️  Creating release v${{ steps.version.outputs.VERSION }}"
+        npm run release ${{ steps.version.outputs.VERSION }} ${{ steps.version.outputs.RELEASE_TYPE }}
+        
+    - name: Create GitHub Release
+      if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        release_name: GameBet 2.0 v${{ steps.version.outputs.VERSION }}
+        body: |
+          ## GameBet 2.0 Release v${{ steps.version.outputs.VERSION }}
+          
+          ### 📱 Android App
+          - **APK**: Direct installation package
+          - **AAB**: Google Play Store bundle
+          
+          ### 🌐 Web App
+          - **PWA**: Progressive Web App deployed to Firebase
+          - **Mobile-optimized**: Works on all devices
+          
+          ### 🎮 Features
+          - Gaming platform with betting functionality
+          - JWT authentication
+          - Mobile-first responsive design
+          - Android App Links support
+          
+          **Build**: ${{ github.sha }}
+          **Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        draft: false
+        prerelease: ${{ steps.version.outputs.RELEASE_TYPE == 'development' }}
+        
+    - name: Upload Android APK to Release
+      if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./GameBet.apk
+        asset_name: GameBet-v${{ steps.version.outputs.VERSION }}.apk
+        asset_content_type: application/vnd.android.package-archive
+        
+    - name: Upload Android AAB to Release
+      if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./GameBet.aab
+        asset_name: GameBet-v${{ steps.version.outputs.VERSION }}.aab
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Web Build to Release
+      if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+      run: |
+        cd build
+        zip -r ../gamebet-web-v${{ steps.version.outputs.VERSION }}.zip .
+        cd ..
+        
+    - name: Upload Web Build Asset
+      if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./gamebet-web-v${{ steps.version.outputs.VERSION }}.zip
+        asset_name: GameBet-Web-v${{ steps.version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
+        
+    - name: Summary
+      run: |
+        echo "🎉 Automated pipeline completed successfully!"
+        echo "📦 Version: v${{ steps.version.outputs.VERSION }}"
+        echo "🚀 Deploy Target: ${{ steps.version.outputs.DEPLOY_TARGET }}"
+        echo "🏷️  Release Type: ${{ steps.version.outputs.RELEASE_TYPE }}"
+        echo ""
+        echo "📱 Android packages available:"
+        echo "  - GameBet-v${{ steps.version.outputs.VERSION }}.apk"
+        echo "  - GameBet-v${{ steps.version.outputs.VERSION }}.aab"
+        echo ""
+        echo "🌐 Web deployment: Firebase Hosting"
+        echo "📦 Build artifacts: Available in Actions artifacts"
