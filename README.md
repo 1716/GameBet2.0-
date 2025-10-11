@@ -4,7 +4,9 @@ A Progressive Web App (PWA) gaming and betting platform converted to native Andr
 
 ## 📚 Documentation
 
-Complete documentation for GameBet 2.0:
+**[📖 Complete Documentation Index](DOCS.md)** - Browse all documentation with detailed descriptions
+
+### Quick Links
 
 - **[Installation Guide](INSTALLATION.md)** - Complete setup instructions for all platforms
 - **[Deployment Guide](DEPLOYMENT.md)** - Step-by-step deployment to Play Store, web servers, Firebase
@@ -15,6 +17,7 @@ Complete documentation for GameBet 2.0:
 - **[Troubleshooting](TROUBLESHOOTING.md)** - Solutions for common issues
 - **[Security](SECURITY.md)** - Security policies and best practices
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
+- **[Workflows](/.github/workflows/README.md)** - CI/CD workflow documentation
 
 ## 🚀 Quick Start
 
