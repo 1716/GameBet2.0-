@@ -104,6 +104,29 @@ dev: clean verify build test ## Full development workflow
 # Production workflow  
 prod: clean verify build package deploy-web deploy-android release ## Full production workflow
 
+# Launch commands
+launch: ## Launch GameBet server for development
+	@echo "🚀 Launching GameBet 2.0 Development Server..."
+	@echo "Server will be available at: http://localhost:3000"
+	@echo "Press Ctrl+C to stop the server"
+	@echo ""
+	NODE_ENV=development npm start
+
+launch-dev: verify ## Launch with full development setup
+	@echo "🚀 Launching GameBet 2.0 with full dev setup..."
+	@echo "Running verification first..."
+	@make launch
+
+launch-prod: build ## Launch production build locally
+	@echo "🚀 Launching GameBet 2.0 production build..."
+	@echo "Server will be available at: http://localhost:3000"
+	NODE_ENV=production npm start
+
+launch-debug: ## Launch server with debugging enabled
+	@echo "🐛 Launching GameBet 2.0 with debugging..."
+	@echo "Debugger will be available at: chrome://inspect"
+	NODE_ENV=development node --inspect server.js
+
 # Quick commands
 quick-build: ## Quick build without verification
 	npm run build

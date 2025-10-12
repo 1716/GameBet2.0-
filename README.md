@@ -71,8 +71,24 @@ For detailed build instructions and troubleshooting, see [USAGE.md](USAGE.md).
 - `make help` - Show all available commands
 - `make dev` - Full development workflow
 - `make prod` - Full production workflow
+- `make launch` - Launch development server
+- `make launch-dev` - Launch with verification
+- `make launch-prod` - Launch production build
+- `make launch-debug` - Launch with debugging
 - `make info` - Show project information
 - `make status` - Show build status
+
+### Launch Script
+```bash
+# Quick launch options
+./launch.sh dev      # Development server
+./launch.sh prod     # Production server  
+./launch.sh debug    # Debug mode
+./launch.sh build    # Build project
+./launch.sh verify   # Verify environment
+./launch.sh status   # Show status
+./launch.sh help     # Show help
+```
 
 ## 📦 Project Structure
 
