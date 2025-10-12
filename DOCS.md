@@ -11,6 +11,7 @@ This project includes comprehensive documentation covering all aspects of instal
 | Document | Description | Size |
 |----------|-------------|------|
 | [README.md](README.md) | Project overview and quick start | 251 lines |
+| [LAUNCH.md](LAUNCH.md) | Launch options and methods | 180 lines |
 | [INSTALLATION.md](INSTALLATION.md) | Complete installation guide | 593 lines |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Deployment to all platforms | 859 lines |
 | [API.md](API.md) | API reference and examples | 758 lines |
@@ -21,7 +22,7 @@ This project includes comprehensive documentation covering all aspects of instal
 | [SECURITY.md](SECURITY.md) | Security policies and practices | 506 lines |
 | [CHANGELOG.md](CHANGELOG.md) | Version history and changes | 163 lines |
 
-**Total Documentation:** 5,156 lines across 10 files
+**Total Documentation:** 5,336 lines across 11 files
 
 ---
 
