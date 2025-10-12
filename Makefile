@@ -1,7 +1,7 @@
 # GameBet 2.0 Build System
 # Premium Gaming & Betting Platform
 
-.PHONY: help install install-force install-dev install-prod check-deps verify verify-safe build build-safe build-force package deploy release clean clean-all test info status dev dev-safe prod launch launch-dev launch-prod launch-debug setup-launch check-launch launch-script launch-script-dev launch-script-prod launch-script-debug launch-script-build launch-script-verify launch-script-status launch-script-info launch-script-help run start quick-build quick-package quick-deploy create-launch backup-launch restore-launch dev-setup dev-reset check-system check-port kill-server diagnose fix-common emergency-reset launch-with-logs launch-background launch-help workspace-info
+.PHONY: help install install-force install-dev install-prod check-deps verify verify-safe build build-safe build-force package deploy release clean clean-all test info status dev dev-safe prod launch launch-dev launch-prod launch-debug setup-launch check-launch launch-script launch-script-dev launch-script-prod launch-script-debug launch-script-build launch-script-verify launch-script-status launch-script-info launch-script-help run start quick-build quick-package quick-deploy create-launch backup-launch restore-launch dev-setup dev-reset check-system check-port kill-server diagnose fix-common emergency-reset launch-with-logs launch-background launch-help workspace-info vscode-info vscode-validate vscode-fix
 
 # Default target
 help: ## Show this help message
@@ -434,3 +434,60 @@ workspace-info: ## Show workspace information
 	@echo ""
 	@echo "📂 Key Files:"
 	@ls -la server.js launch.sh package.json Makefile 2>/dev/null || echo "Some key files missing"
+
+vscode-info: ## Show VS Code configuration status
+	@echo "🔍 VS Code Configuration Status"
+	@echo "================================"
+	@echo -n "📁 .vscode directory: "
+	@if [ -d ".vscode" ]; then echo "✅ exists"; else echo "❌ missing"; fi
+	@echo -n "🚀 launch.json: "
+	@if [ -f ".vscode/launch.json" ]; then \
+		echo "✅ exists ($$(cat .vscode/launch.json | jq '.configurations | length' 2>/dev/null || echo '?') configurations)"; \
+	else echo "❌ missing"; fi
+	@echo -n "📋 tasks.json: "
+	@if [ -f ".vscode/tasks.json" ]; then \
+		echo "✅ exists ($$(cat .vscode/tasks.json | jq '.tasks | length' 2>/dev/null || echo '?') tasks)"; \
+	else echo "❌ missing"; fi
+	@echo -n "⚙️ settings.json: "
+	@if [ -f ".vscode/settings.json" ]; then echo "✅ exists"; else echo "⚠️ optional"; fi
+	@echo ""
+	@echo "🎯 Available launch configurations:"
+	@if [ -f ".vscode/launch.json" ]; then \
+		cat .vscode/launch.json | jq -r '.configurations[] | "  - " + .name' 2>/dev/null || echo "  (JSON parse error)"; \
+	else echo "  (launch.json not found)"; fi
+
+vscode-validate: ## Validate VS Code configuration files
+	@echo "🔍 Validating VS Code configuration..."
+	@if [ -f ".vscode/launch.json" ]; then \
+		if cat .vscode/launch.json | jq . >/dev/null 2>&1; then \
+			echo "✅ launch.json is valid JSON"; \
+		else \
+			echo "❌ launch.json has JSON syntax errors"; \
+			exit 1; \
+		fi \
+	else \
+		echo "❌ launch.json not found"; \
+		exit 1; \
+	fi
+	@if [ -f ".vscode/tasks.json" ]; then \
+		if cat .vscode/tasks.json | jq . >/dev/null 2>&1; then \
+			echo "✅ tasks.json is valid JSON"; \
+		else \
+			echo "❌ tasks.json has JSON syntax errors"; \
+			exit 1; \
+		fi \
+	else \
+		echo "❌ tasks.json not found"; \
+		exit 1; \
+	fi
+	@echo "✅ VS Code configuration is valid!"
+
+vscode-fix: ## Fix common VS Code configuration issues
+	@echo "🔧 Fixing VS Code configuration issues..."
+	@if [ ! -d ".vscode" ]; then mkdir .vscode; echo "📁 Created .vscode directory"; fi
+	@if [ ! -f ".vscode/launch.json" ] || ! cat .vscode/launch.json | jq . >/dev/null 2>&1; then \
+		echo "🚀 Recreating launch.json..."; \
+		make backup-launch 2>/dev/null || true; \
+		echo "Run 'make create-vscode-config' to restore default configuration"; \
+	fi
+	@echo "✅ VS Code configuration check complete!"
