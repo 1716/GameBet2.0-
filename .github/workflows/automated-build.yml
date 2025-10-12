@@ -1,0 +1,256 @@
+name: Automated APK Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: 'Deployment target'
+        required: false
+        default: 'none'
+        type: choice
+        options:
+        - none
+        - staging
+        - web
+        - android-store
+        - all
+
+jobs:
+  # Job 1: Verify and Build
+  build:
+    name: Build APK and AAB
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔍 Verify environment
+      run: npm run verify
+      
+    - name: 🏗️ Build project
+      run: npm run build
+      
+    - name: 📦 Package project
+      run: npm run package
+      
+    - name: 📊 Generate build report
+      run: |
+        echo "## 🏗️ Build Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Build Artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "build/GameBet.aab" ]; then
+          AAB_SIZE=$(du -h build/GameBet.aab | cut -f1)
+          echo "| GameBet.aab | $AAB_SIZE |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ -f "build/GameBet.apk" ]; then
+          APK_SIZE=$(du -h build/GameBet.apk | cut -f1)
+          echo "| GameBet.apk | $APK_SIZE |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Package Structure" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        tree -L 2 package/ || ls -la package/ >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        
+    - name: 📤 Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: gamebet-build-${{ github.sha }}
+        path: |
+          build/
+          package/
+        retention-days: 30
+        
+    - name: 📤 Upload Android packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: gamebet-android-${{ github.sha }}
+        path: package/android/
+        retention-days: 90
+
+  # Job 2: Quality Checks
+  quality:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 📥 Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: gamebet-build-${{ github.sha }}
+        
+    - name: 🔍 Verify build integrity
+      run: |
+        echo "🔍 Verifying build artifacts..."
+        
+        # Check if required files exist
+        required_files=(
+          "build/GameBet.aab"
+          "build/GameBet.apk"
+          "build/assetlinks.json"
+        )
+        
+        for file in "${required_files[@]}"; do
+          if [ -f "$file" ]; then
+            echo "✅ $file exists"
+          else
+            echo "❌ $file missing"
+            exit 1
+          fi
+        done
+        
+        # Check file sizes
+        aab_size=$(stat -f%z "build/GameBet.aab" 2>/dev/null || stat -c%s "build/GameBet.aab")
+        apk_size=$(stat -f%z "build/GameBet.apk" 2>/dev/null || stat -c%s "build/GameBet.apk")
+        
+        echo "📊 File sizes:"
+        echo "  AAB: $(($aab_size / 1024 / 1024)) MB"
+        echo "  APK: $(($apk_size / 1024 / 1024)) MB"
+        
+        # Verify files are not empty
+        if [ $aab_size -lt 1000000 ]; then
+          echo "❌ AAB file too small (< 1MB)"
+          exit 1
+        fi
+        
+        if [ $apk_size -lt 1000000 ]; then
+          echo "❌ APK file too small (< 1MB)"
+          exit 1
+        fi
+        
+        echo "✅ Build verification passed"
+        
+    - name: 📊 Quality Report
+      run: |
+        echo "## 📊 Quality Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ All quality checks passed" >> $GITHUB_STEP_SUMMARY
+
+  # Job 3: Deploy (conditional)
+  deploy:
+    name: Deploy to ${{ github.event.inputs.deploy_target || 'staging' }}
+    runs-on: ubuntu-latest
+    needs: [build, quality]
+    if: |
+      github.event_name == 'workflow_dispatch' && 
+      github.event.inputs.deploy_target != 'none'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 📥 Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: gamebet-build-${{ github.sha }}
+        
+    - name: 🚀 Prepare deployment
+      run: |
+        TARGET="${{ github.event.inputs.deploy_target }}"
+        echo "🚀 Preparing deployment for: $TARGET"
+        
+        if [ "$TARGET" = "all" ]; then
+          # Deploy to all targets
+          DEPLOY_TARGET=staging npm run deploy
+          DEPLOY_TARGET=web npm run deploy
+          DEPLOY_TARGET=android-store npm run deploy
+        else
+          # Deploy to specific target
+          DEPLOY_TARGET=$TARGET npm run deploy
+        fi
+        
+    - name: 📤 Upload deployment artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: gamebet-deploy-${{ github.event.inputs.deploy_target }}-${{ github.sha }}
+        path: deploy/
+        retention-days: 30
+        
+    - name: 📊 Deployment Summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Target:** ${{ github.event.inputs.deploy_target }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ✅ Prepared" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Deployment Files" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        ls -laR deploy/ >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  # Job 4: Notification
+  notify:
+    name: Notify Build Status
+    runs-on: ubuntu-latest
+    needs: [build, quality]
+    if: always()
+    
+    steps:
+    - name: 📊 Build Status
+      run: |
+        echo "## 🔔 Build Notification" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.build.result }}" = "success" ] && [ "${{ needs.quality.result }}" = "success" ]; then
+          echo "**Status:** ✅ Success" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All builds and quality checks passed!" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "**Status:** ❌ Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Some checks failed. Please review the logs." >> $GITHUB_STEP_SUMMARY
+        fi
